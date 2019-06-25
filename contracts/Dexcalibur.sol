@@ -10,9 +10,12 @@ import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
  * @dev This contract is the base of our project
  */
 contract Dexcalibur is ERC721Full {
-    address public king = 0x653036dDd25CeB5Ecc2D933f27e33D95C23F1043;
+    address public king = 0x483d975B4de8AA91D319FB3Cf3b715Bc09E53990;
     uint256 public price = 0.01 ether;
     bool public kingHasBeenFound = false;
+
+    enum State { Unkown, Peasant, King }
+    mapping (address => State) public states;
 
     event LogKingHasBeenFound();
     event LogAnotherPeasant(address indexed peasant);
@@ -39,6 +42,8 @@ contract Dexcalibur is ERC721Full {
             _mint(msg.sender, 0);
             _setTokenURI(0, "https://ipfs.globalupload.io/QmVncbmEBg53YMytFdr2L4kvTsn5BmbkneNWskM1J1Bnvr");
 
+            states[msg.sender] = State.King;
+
             bool transfer = msg.sender.send(address(this).balance);
             require(transfer == true, "Funds transfer failed");
 
@@ -46,6 +51,8 @@ contract Dexcalibur is ERC721Full {
 
             return true;
         }
+
+        states[msg.sender] = State.Peasant;
 
         emit LogAnotherPeasant(msg.sender);
         return false;
